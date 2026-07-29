@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Happy Friendship Day 🎀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Caveat:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // shared-link viewers never see the intake form flash on screen
+  (function(){
+    var params = new URLSearchParams(location.search);
+    if(params.get('id') || params.get('d')){
+      document.documentElement.classList.add('viewer-boot');
+    }
+  })();
+</script>
+<style>
+  :root{
+    --paper:#FFF7E8;
+    --butter:#FFE07D;
+    --mint:#9FE8CF;
+    --lav:#CDBBF5;
+    --bubblegum:#FF9FC0;
+    --accent:#FF5C8A;
+    --ink:#191722;
+    --sticker:#7FCBEA;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:'Space Grotesk',sans-serif;
+    background:
+      radial-gradient(circle at 15% 20%, rgba(255,255,255,.5) 0 2px, transparent 3px),
+      radial-gradient(circle at 70% 60%, rgba(255,255,255,.5) 0 2px, transparent 3px),
+      radial-gradient(circle at 40% 85%, rgba(255,255,255,.5) 0 2px, transparent 3px),
+      linear-gradient(160deg,var(--mint),var(--lav) 55%,var(--bubblegum));
+    background-size:60px 60px,60px 60px,60px 60px,cover;
+    min-height:100vh;
+    display:flex;align-items:flex-start;justify-content:center;
+    padding:28px 14px 80px;
+  }
+  .font-display{font-family:'Baloo 2',sans-serif}
+  .font-script{font-family:'Caveat',cursive}
+
+  .frame{
+    width:100%;max-width:440px;
+    background:var(--ink);
+    border-radius:26px;
+    padding:14px;
+    position:relative;
+    box-shadow:8px 8px 0 rgba(25,23,34,.35);
+  }
+  .card{
+    position:relative;z-index:1;
+    background:var(--paper);
+    border-radius:18px;
+    border:3px solid var(--ink);
+    min-height:580px;
+    display:flex;flex-direction:column;
+    overflow:hidden;
+  }
+
+  .sticker{position:absolute;z-index:3;filter:drop-shadow(1px 2px 1px rgba(0,0,0,.2))}
+
+  .dots{display:flex;gap:6px;justify-content:center;margin:14px 0 2px}
+  .dot{width:7px;height:7px;border-radius:50%;background:var(--ink);opacity:.2}
+  .dot.active{opacity:1;background:var(--accent);width:18px;border-radius:5px;transition:width .25s}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  @keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
+  @keyframes wiggle{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}}
+  .fade-up{animation:fadeUp .45s ease both}
+  .spinner{width:26px;height:26px;border-radius:50%;border:4px solid var(--lav);border-top-color:var(--accent);animation:spin .8s linear infinite}
+
+  .btn{
+    padding:12px 26px;border-radius:999px;font-size:13px;font-weight:700;
+    letter-spacing:.4px;cursor:pointer;font-family:'Space Grotesk',sans-serif;
+    border:3px solid var(--ink);background:var(--accent);color:#fff;
+    box-shadow:4px 4px 0 var(--ink);
+    transition:transform .1s,box-shadow .1s,opacity .15s;
+  }
+  .btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:4px 4px 0 var(--ink)}
+  .btn-ghost{
+    padding:12px 26px;border-radius:999px;font-size:13px;font-weight:700;
+    letter-spacing:.4px;cursor:pointer;font-family:'Space Grotesk',sans-serif;
+    border:3px solid var(--ink);background:#fff;color:var(--ink);
+    box-shadow:4px 4px 0 var(--ink);
+    transition:transform .1s,box-shadow .1s;
+  }
+  .btn-ghost:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+  .btn-sm{padding:9px 16px;font-size:11.5px}
+
+  .inp{
+    width:100%;padding:11px 13px;border-radius:12px;border:3px solid var(--ink);
+    font-size:14px;font-family:'Space Grotesk',sans-serif;outline:none;background:#fff;
+    box-shadow:3px 3px 0 rgba(25,23,34,.18);
+  }
+  .inp:focus{box-shadow:3px 3px 0 var(--accent)}
+
+  .photo-slot{
+    border:3px solid var(--ink);border-radius:12px;aspect-ratio:1/1;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    overflow:hidden;position:relative;background:#fff;
+    box-shadow:3px 3px 0 rgba(25,23,34,.18);
+  }
+  .photo-slot img{width:100%;height:100%;object-fit:cover}
+
+  ::-webkit-scrollbar{width:0}
+
+  .write-cursor{
+    display:inline-block;width:2px;height:12px;background:var(--accent);
+    margin-left:2px;vertical-align:-1px;animation:blinkCursor .9s steps(1) infinite;
+  }
+  @keyframes blinkCursor{50%{opacity:0}}
+
+  html.viewer-boot #step-intake{display:none !important}
+  html.viewer-boot #step-bootload{display:flex !important}
+
+  /* ---------- notifications (phone lock-screen intro) ---------- */
+  .phone-bg{
+    flex:1;display:flex;flex-direction:column;align-items:center;
+    background:linear-gradient(180deg,var(--lav),var(--bubblegum));
+    padding:26px 18px 30px;
+  }
+  .phone-time{color:#fff;text-align:center;margin-bottom:22px;text-shadow:0 2px 0 rgba(0,0,0,.15)}
+  .phone-time .hh{font-family:'Baloo 2',sans-serif;font-size:46px;font-weight:700;line-height:1}
+  .phone-time .dd{font-size:12px;letter-spacing:1px;margin-top:4px;opacity:.9}
+  .notif{
+    width:100%;max-width:320px;background:#fff;border:3px solid var(--ink);border-radius:16px;
+    padding:11px 13px;display:flex;gap:10px;margin-bottom:10px;box-shadow:3px 3px 0 rgba(25,23,34,.3);
+  }
+  .notif-ico{width:34px;height:34px;border-radius:10px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:16px;border:2px solid var(--ink)}
+  .notif-body{flex:1;min-width:0}
+  .notif-top{display:flex;justify-content:space-between;font-size:9.5px;color:#8a8496;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+  .notif-sender{font-size:12.5px;font-weight:700;color:var(--ink)}
+  .notif-msg{font-size:11.5px;color:#514c5e;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .notif-target{
+    cursor:pointer;border-color:var(--ink);background:var(--butter);
+    animation:pop 1.6s ease-in-out infinite;
+  }
+  .notif-target .notif-ico{background:var(--accent);color:#fff}
+  .phone-hint{color:#fff;font-size:11.5px;margin-top:14px;text-shadow:0 1px 0 rgba(0,0,0,.15)}
+
+  /* ---------- envelope ---------- */
+  .env-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 26px;text-align:center;position:relative}
+
+  /* ---------- scrapbook / retro-tv page ---------- */
+  .tv-stage{position:relative;flex:1;padding:24px 18px 20px;overflow:hidden}
+  .tv{
+    position:absolute;width:78%;left:11%;
+    border:3px solid var(--ink);border-radius:14px;background:#2b2833;
+    box-shadow:5px 5px 0 rgba(25,23,34,.35);
+    display:flex;padding:10px;gap:8px;
+  }
+  .tv-screen{
+    flex:1;border-radius:8px;border:2px solid var(--ink);overflow:hidden;background:#dfe;
+    aspect-ratio:4/3;
+  }
+  .tv-screen img{width:100%;height:100%;object-fit:cover}
+  .tv-panel{width:26px;display:flex;flex-direction:column;align-items:center;justify-content:space-around;padding:4px 0}
+  .tv-knob{width:14px;height:14px;border-radius:50%;background:var(--butter);border:2px solid var(--ink)}
+  .tv-dot{width:6px;height:6px;border-radius:50%;background:#665f75}
+
+  /* ---------- letter + bouquet ---------- */
+  .letter-photo-col{width:38%;position:relative;overflow:hidden;border-right:3px solid var(--ink)}
+  .letter-text-col{width:62%;padding:24px 18px 18px;display:flex;flex-direction:column;position:relative}
+</style>
+</head>
+<body>
+
+<div class="frame" id="frame">
+  <div class="card" id="card">
+
+    <!-- ============ BOOT — SHARED LINK LOADING / ERROR ============ -->
+    <section id="step-bootload" style="display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;padding:36px 26px;text-align:center">
+      <div class="spinner" id="bootload-spinner"></div>
+      <div style="margin-top:16px;font-size:12.5px;color:#8a8496" id="bootload-text">Opening your surprise…</div>
+      <button id="bootload-retry" class="btn btn-sm" style="display:none;margin-top:18px" onclick="location.reload()">Retry</button>
+    </section>
+
+    <!-- ============ STEP 0 — INTAKE ============ -->
+    <section id="step-intake" class="fade-up" style="padding:30px 24px;flex:1;display:flex;flex-direction:column">
+      <div id="resume-banner" style="display:none;background:var(--butter);border:3px solid var(--ink);border-radius:14px;padding:12px 14px;margin-bottom:16px;font-size:12px;box-shadow:3px 3px 0 rgba(25,23,34,.2)">
+        <div style="margin-bottom:8px">You already paid for a surprise that didn't finish generating. Pick up where it left off?</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-sm" style="flex:1" onclick="resumePendingOrder()">Resume</button>
+          <button class="btn-ghost btn-sm" style="flex:1" onclick="discardPendingOrder()">Discard</button>
+        </div>
+      </div>
+      <div class="font-display" style="font-size:23px;font-weight:800;color:var(--ink);text-align:center;margin-bottom:4px">🎀 Make Their Surprise</div>
+      <p style="text-align:center;color:#8a8496;font-size:12.5px;margin-bottom:20px">Three photos, a few words — that's all it takes.</p>
+
+      <div style="display:flex;flex-direction:column;gap:13px">
+        <input id="in-recipient" class="inp" placeholder="Your friend's name" />
+        <input id="in-sender" class="inp" placeholder="Your name" />
+
+        <div>
+          <div style="font-size:11px;color:var(--ink);font-weight:700;letter-spacing:.4px;text-transform:uppercase;margin-bottom:8px">Three photos, for the scrapbook</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px">
+            <div class="photo-slot" data-slot="0" onclick="pickPhoto(0)"><span style="font-size:10px;color:#a49cb5;text-align:center;padding:0 6px">photo 1</span></div>
+            <div class="photo-slot" data-slot="1" onclick="pickPhoto(1)"><span style="font-size:10px;color:#a49cb5;text-align:center;padding:0 6px">photo 2</span></div>
+            <div class="photo-slot" data-slot="2" onclick="pickPhoto(2)"><span style="font-size:10px;color:#a49cb5;text-align:center;padding:0 6px">photo 3</span></div>
+          </div>
+          <input type="file" id="file-input" accept="image/*" style="display:none" />
+        </div>
+
+        <textarea id="in-message" class="inp" rows="7" style="resize:none">Some friendships just get it — no explaining, no performing, just showing up. Ours is one of those.
+
+Thank you for the laughs that made bad days good and the good days unforgettable. Thank you for the 2am rambles, the inside jokes nobody else understands, and for never once making me feel like too much.
+
+Whatever life throws at us, I know you'll be somewhere nearby, probably making fun of me for something — and honestly, I wouldn't want it any other way.
+
+Happy Friendship Day. Here's to more chaos, more memories, and forever having your back. 🎀</textarea>
+      </div>
+
+      <div id="intake-err" style="display:none;color:#c62828;font-size:12px;margin-top:10px">Add both names and a message first.</div>
+      <button class="btn" style="margin-top:20px;width:100%" onclick="startPreview()">Preview the Surprise →</button>
+    </section>
+
+    <!-- ============ STEP PAY — COUPON + PAYMENT ============ -->
+    <section id="step-payment" style="display:none;flex:1;flex-direction:column;padding:30px 24px">
+      <div class="font-display" style="font-size:21px;font-weight:800;color:var(--ink);text-align:center;margin-bottom:6px">Almost there 🎀</div>
+      <p style="text-align:center;color:#8a8496;font-size:12.5px;margin-bottom:24px">Unlock the link to send it to them.</p>
+
+      <div style="background:var(--butter);border:3px solid var(--ink);border-radius:16px;padding:20px;text-align:center;margin-bottom:16px;box-shadow:3px 3px 0 rgba(25,23,34,.2)">
+        <div style="font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:#6b6478;margin-bottom:6px">Total</div>
+        <div class="font-display" id="pay-price" style="font-size:34px;font-weight:800;color:var(--ink)">₹99</div>
+        <div id="pay-coupon-applied" style="display:none;font-size:11px;color:#2f7a4d;margin-top:4px;font-weight:600"></div>
+      </div>
+
+      <div style="display:flex;gap:8px;margin-bottom:6px">
+        <input id="in-coupon" class="inp" placeholder="Have a coupon code?" style="text-transform:uppercase" />
+        <button class="btn-ghost btn-sm" onclick="applyCoupon()">Apply</button>
+      </div>
+      <div id="coupon-err" style="display:none;color:#c62828;font-size:12px;margin-bottom:8px">Invalid coupon code.</div>
+
+      <button id="pay-btn" class="btn" style="margin-top:16px;width:100%" onclick="handlePayment()">Pay &amp; Get Link</button>
+      <button class="btn-ghost" style="margin-top:10px;width:100%" onclick="goTo('step-letter')">← Back</button>
+
+      <div id="pay-loading" style="display:none;align-items:center;justify-content:center;gap:10px;margin-top:18px">
+        <div class="spinner"></div>
+        <span id="pay-loading-text" style="font-size:12.5px;color:#8a8496">Creating your surprise…</span>
+      </div>
+
+      <div id="pay-fail" style="display:none;background:var(--butter);border:3px solid var(--ink);border-radius:14px;padding:14px;margin-top:16px;font-size:12px;text-align:center">
+        <div style="margin-bottom:10px">Payment went through, but we hit a snag creating the link. Your payment is safe — just tap retry.</div>
+        <button class="btn" style="width:100%" onclick="retryFinalize()">Retry</button>
+      </div>
+    </section>
+
+    <!-- ============ STEP LINK — SHAREABLE LINK ============ -->
+    <section id="step-linkout" style="display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;padding:36px 26px;text-align:center">
+      <div class="font-display fade-up" style="font-size:22px;font-weight:800;color:var(--ink);margin-bottom:10px">It's ready 🎀</div>
+      <p style="color:#8a8496;font-size:12.5px;margin-bottom:20px">Copy this link and send it to them.</p>
+      <div style="display:flex;gap:8px;width:100%">
+        <input id="out-link" class="inp" readonly style="font-size:11px" />
+        <button class="btn btn-sm" onclick="copyLink()">Copy</button>
+      </div>
+      <div id="copy-msg" style="display:none;color:#2f7a4d;font-size:11px;margin-top:8px;font-weight:600">Copied!</div>
+      <button class="btn-ghost" style="margin-top:20px" onclick="goTo('step-notifications')">Preview it</button>
+    </section>
+
+    <!-- ============ STEP 1 — NOTIFICATIONS (phone lock screen) ============ -->
+    <section id="step-notifications" style="display:none;flex:1;flex-direction:column">
+      <button id="notif-edit-btn" class="btn-ghost btn-sm" style="position:absolute;top:14px;left:14px;z-index:5" onclick="goTo('step-intake')">← Edit</button>
+      <div class="phone-bg">
+        <div class="phone-time">
+          <div class="hh" id="notif-clock">9:41</div>
+          <div class="dd">Friendship Day</div>
+        </div>
+
+        <div class="notif">
+          <div class="notif-ico" style="background:#B8E1FF">📦</div>
+          <div class="notif-body">
+            <div class="notif-top"><span>Delivery</span><span>2m</span></div>
+            <div class="notif-sender">Your package</div>
+            <div class="notif-msg">Out for delivery, arriving today</div>
+          </div>
+        </div>
+        <div class="notif">
+          <div class="notif-ico" style="background:#C9F7D6">💧</div>
+          <div class="notif-body">
+            <div class="notif-top"><span>Reminder</span><span>6m</span></div>
+            <div class="notif-sender">Hydration check</div>
+            <div class="notif-msg">Drink some water, you forgot again</div>
+          </div>
+        </div>
+        <div class="notif">
+          <div class="notif-ico" style="background:#F5D7FF">🎧</div>
+          <div class="notif-body">
+            <div class="notif-top"><span>Music</span><span>14m</span></div>
+            <div class="notif-sender">Your playlist</div>
+            <div class="notif-msg">Updated with 12 new tracks</div>
+          </div>
+        </div>
+        <div class="notif notif-target" onclick="openNotification()">
+          <div class="notif-ico">🎀</div>
+          <div class="notif-body">
+            <div class="notif-top"><span>Now</span><span>•</span></div>
+            <div class="notif-sender" id="notif-sender-name">Someone</div>
+            <div class="notif-msg">sent you something 👀 tap to open</div>
+          </div>
+        </div>
+        <div class="phone-hint">tap the glowing one</div>
+      </div>
+    </section>
+
+    <!-- ============ STEP 2 — ENVELOPE ============ -->
+    <section id="step-envelope" style="display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;padding:36px 26px;text-align:center">
+      <div class="font-display fade-up" style="font-size:25px;font-weight:800;color:var(--ink);margin-bottom:24px" id="env-title">Happy Friendship Day</div>
+
+      <div id="envelope" class="fade-up" onclick="openEnvelope()" style="cursor:pointer;width:220px;position:relative">
+        <div style="width:220px;height:150px;background:#fff;border:3px solid var(--ink);border-radius:10px;position:relative;box-shadow:5px 5px 0 rgba(25,23,34,.3);overflow:hidden">
+          <img id="env-photo" src="" style="width:100%;height:100%;object-fit:cover;opacity:.35" />
+          <div style="position:absolute;inset:0;background:linear-gradient(160deg,rgba(255,247,232,.35),rgba(255,247,232,.55))"></div>
+          <div id="env-flap" style="position:absolute;top:-1px;left:-1px;width:0;height:0;border-left:111px solid transparent;border-right:111px solid transparent;border-top:76px solid var(--butter);transform-origin:top;transition:transform .6s ease"></div>
+          <div style="position:absolute;top:0;left:0;width:100%;height:100%;border:3px solid var(--ink);border-radius:10px;pointer-events:none"></div>
+          <div style="position:absolute;top:56px;left:50%;transform:translateX(-50%);width:36px;height:36px;border-radius:50%;background:var(--accent);border:3px solid var(--ink);display:flex;align-items:center;justify-content:center;z-index:2">
+            <span style="color:#fff;font-family:'Baloo 2',sans-serif;font-weight:700;font-size:15px" id="env-seal">F</span>
+          </div>
+        </div>
+      </div>
+      <div class="font-script fade-up" style="font-size:16px;color:var(--ink);margin-top:18px" id="env-hint">tap to open</div>
+      <div style="font-size:10px;letter-spacing:2px;color:#a49cb5;text-transform:uppercase;margin-top:28px">designs by joy</div>
+    </section>
+
+    <!-- ============ STEP 3 — SCRAPBOOK (retro TVs) ============ -->
+    <section id="step-scrapbook" style="display:none;flex:1;flex-direction:column">
+      <div class="tv-stage">
+        <div class="sticker" style="top:6px;left:8px;font-size:26px;transform:rotate(-12deg)">⭐</div>
+        <div class="sticker" style="top:10px;right:14px;font-size:24px">🌼</div>
+        <div class="sticker" style="bottom:60px;left:6px;font-size:24px;transform:rotate(8deg)">💌</div>
+        <div class="sticker" style="bottom:14px;right:10px;font-size:26px;transform:rotate(-6deg)">📼</div>
+        <div class="sticker" style="top:44%;right:0px;font-size:24px">💿</div>
+
+        <div class="tv fade-up" style="top:4%;transform:rotate(-4deg)">
+          <div class="tv-screen"><img id="board-photo-0" src="" /></div>
+          <div class="tv-panel"><div class="tv-knob"></div><div class="tv-dot"></div><div class="tv-dot"></div></div>
+        </div>
+        <div class="tv fade-up" style="top:36%;transform:rotate(3deg)">
+          <div class="tv-screen"><img id="board-photo-1" src="" /></div>
+          <div class="tv-panel"><div class="tv-knob"></div><div class="tv-dot"></div><div class="tv-dot"></div></div>
+        </div>
+        <div class="tv fade-up" style="top:68%;transform:rotate(-3deg)">
+          <div class="tv-screen"><img id="board-photo-2" src="" /></div>
+          <div class="tv-panel"><div class="tv-knob"></div><div class="tv-dot"></div><div class="tv-dot"></div></div>
+        </div>
+      </div>
+      <div style="text-align:center;padding:0 22px 6px" class="font-script fade-up" style="font-size:16px;color:var(--ink)">tune into our favorite memories</div>
+      <div style="display:flex;justify-content:space-between;padding:10px 22px 20px" id="scrapbook-actions">
+        <button class="btn-ghost btn-sm" onclick="goBackTo('step-envelope')">← Back</button>
+        <button class="btn btn-sm" onclick="goTo('step-letter')">Next</button>
+      </div>
+    </section>
+
+    <!-- ============ STEP 4 — LETTER + BOUQUET ============ -->
+    <section id="step-letter" style="display:none;flex:1;flex-direction:column">
+      <div style="display:flex;flex:1;min-height:0">
+        <div class="letter-photo-col">
+          <img id="letter-photo" src="photo.jpeg" style="width:100%;height:100%;object-fit:cover" />
+        </div>
+        <div class="letter-text-col">
+          <div style="position:absolute;top:12px;right:14px;font-size:16px">🎀</div>
+          <div class="font-display" style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:6px">Dear <span id="letter-name"></span>,</div>
+          <div style="width:32px;height:3px;background:var(--accent);border-radius:2px;margin-bottom:12px"></div>
+          <div id="letter-body" style="font-size:12px;line-height:21px;color:#3a344a;flex:1;overflow-y:auto;white-space:pre-wrap;border-left:3px dashed var(--lav);padding-left:10px"><span id="letter-body-text"></span><span id="letter-cursor" class="write-cursor"></span></div>
+          <div class="font-script" style="font-size:14px;color:var(--accent);margin-top:12px;text-align:right">— <span id="letter-sender"></span></div>
+          <div style="display:flex;justify-content:space-between;margin-top:12px" id="letter-actions">
+            <button class="btn-ghost btn-sm" onclick="goTo('step-scrapbook')">← Back</button>
+            <button class="btn btn-sm" onclick="goToPayment()">Generate Link →</button>
+          </div>
+          <button class="btn-ghost btn-sm" style="margin-top:8px;width:100%" onclick="restartFlow()" id="letter-restart">Start Over</button>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<script>
+/* ---------- config ---------- */
+const SUPABASE_URL = 'https://qfzpqjbknobsirjpakcc.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFmenBxamJrbm9ic2lyanBha2NjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODUzMDYxNzcsImV4cCI6MjEwMDg4MjE3N30.MWtwYeBf7FAqR1u92Ac-YeTDZoWTAftxX2XHhOI1oYk';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const RAZORPAY_KEY = 'rzp_live_SmizRaPApu81ZS'; // carried over from your other live products — swap if you want a separate key for this one
+const BASE_PRICE = 99;
+const COUPONS = { 'BFF': 0, 'BFF1': 1, 'FRIEND': 59 };
+const PHOTO_COUNT = 3;
+
+/* ---------- state ---------- */
+let state = { recipient:'', sender:'', message:'', photos:[null,null,null], photoFiles:[null,null,null] };
+let activeSlot = null;
+let currentPrice = BASE_PRICE;
+let appliedCoupon = null;
+let isViewerMode = false;
+
+/* ---------- intake ---------- */
+function pickPhoto(idx){ activeSlot = idx; document.getElementById('file-input').click(); }
+
+function compressImage(file, maxDim=720, quality=0.68){
+  return new Promise((resolve, reject)=>{
+    const reader = new FileReader();
+    reader.onerror = ()=> reject(new Error('Could not read file'));
+    reader.onload = (e)=>{
+      const img = new Image();
+      img.onerror = ()=> reject(new Error('Could not load image'));
+      img.onload = ()=>{
+        let w = img.width, h = img.height;
+        if(w > h && w > maxDim){ h = Math.round(h * maxDim / w); w = maxDim; }
+        else if(h >= w && h > maxDim){ w = Math.round(w * maxDim / h); h = maxDim; }
+        const canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+function dataUrlToBlob(dataUrl){
+  const [meta, b64] = dataUrl.split(',');
+  const mime = meta.match(/:(.*?);/)[1];
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) arr[i] = bin.charCodeAt(i);
+  return new Blob([arr], { type: mime });
+}
+
+document.getElementById('file-input').addEventListener('change', async e=>{
+  const file = e.target.files[0];
+  const idx = activeSlot;
+  if(!file || idx===null) return;
+  const slot = document.querySelector(`.photo-slot[data-slot="${idx}"]`);
+  slot.innerHTML = `<span style="font-size:10px;color:#a49cb5">optimizing…</span>`;
+  try{
+    const dataUrl = await compressImage(file);
+    state.photos[idx] = dataUrl;
+    state.photoFiles[idx] = dataUrl;
+    slot.innerHTML = `<img src="${dataUrl}" />`;
+  }catch(err){
+    console.error(err);
+    slot.innerHTML = `<span style="font-size:10px;color:#c62828;text-align:center;padding:0 6px">couldn't read that photo — try another</span>`;
+  }
+  e.target.value = '';
+});
+
+function startPreview(){
+  const recipient = document.getElementById('in-recipient').value.trim();
+  const sender = document.getElementById('in-sender').value.trim();
+  const message = document.getElementById('in-message').value.trim();
+  if(!recipient || !sender || !message){
+    document.getElementById('intake-err').style.display='block';
+    return;
+  }
+  document.getElementById('intake-err').style.display='none';
+  state.recipient = recipient; state.sender = sender; state.message = message;
+
+  document.getElementById('notif-sender-name').textContent = sender;
+  document.getElementById('env-title').textContent = 'Happy Friendship Day';
+  document.getElementById('env-seal').textContent = (sender[0] || 'F').toUpperCase();
+  document.getElementById('env-photo').src = state.photos[0] || '';
+  document.getElementById('letter-name').textContent = recipient;
+  document.getElementById('letter-sender').textContent = sender;
+  populateBoard(state.photos);
+
+  goTo('step-notifications');
+}
+
+function goToPayment(){
+  currentPrice = BASE_PRICE;
+  appliedCoupon = null;
+  document.getElementById('pay-price').textContent = '₹' + currentPrice;
+  document.getElementById('pay-coupon-applied').style.display = 'none';
+  document.getElementById('in-coupon').value = '';
+  document.getElementById('coupon-err').style.display = 'none';
+  updatePayBtnLabel();
+  goTo('step-payment');
+}
+
+/* ---------- coupons ---------- */
+function applyCoupon(){
+  const code = document.getElementById('in-coupon').value.trim().toUpperCase();
+  const errEl = document.getElementById('coupon-err');
+  if(!code || !(code in COUPONS)){
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+  appliedCoupon = code;
+  currentPrice = COUPONS[code];
+  document.getElementById('pay-price').textContent = '₹' + currentPrice;
+  const appliedEl = document.getElementById('pay-coupon-applied');
+  appliedEl.style.display = 'block';
+  appliedEl.textContent = `"${code}" applied`;
+  updatePayBtnLabel();
+}
+function updatePayBtnLabel(){
+  document.getElementById('pay-btn').textContent = currentPrice === 0 ? 'Get Link — Free' : `Pay ₹${currentPrice} & Get Link`;
+}
+
+/* ---------- resilience helpers ---------- */
+const PENDING_KEY = 'friendsday_pending_order_v1';
+
+function saveOrderLocal(order){
+  try{ localStorage.setItem(PENDING_KEY, JSON.stringify(order)); }catch(e){ console.warn('localStorage save failed', e); }
+}
+function loadOrderLocal(){
+  try{
+    const raw = localStorage.getItem(PENDING_KEY);
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+function clearOrderLocal(){
+  try{ localStorage.removeItem(PENDING_KEY); }catch(e){}
+}
+
+async function withRetry(fn, { attempts=4, baseDelay=1000, onAttempt=null } = {}){
+  let lastErr;
+  for(let i=0;i<attempts;i++){
+    try{
+      if(onAttempt) onAttempt(i+1, attempts);
+      return await fn();
+    }catch(err){
+      lastErr = err;
+      console.warn(`Attempt ${i+1}/${attempts} failed:`, err);
+      if(i < attempts-1){
+        const delay = baseDelay * Math.pow(2, i) + Math.random()*300;
+        await new Promise(r=>setTimeout(r, delay));
+      }
+    }
+  }
+  throw lastErr;
+}
+
+function setLoadingText(msg){
+  const el = document.getElementById('pay-loading-text');
+  if(el) el.textContent = msg;
+}
+
+function ensureRazorpayLoaded(){
+  return new Promise((resolve, reject)=>{
+    if(window.Razorpay) return resolve();
+    const existing = document.querySelector('script[src*="checkout.razorpay.com"]');
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = ()=> window.Razorpay ? resolve() : reject(new Error('Razorpay failed to initialize'));
+    script.onerror = ()=> reject(new Error('Could not load payment gateway — check your connection'));
+    if(existing){
+      setTimeout(()=> window.Razorpay ? resolve() : document.head.appendChild(script), 800);
+    } else {
+      document.head.appendChild(script);
+    }
+  });
+}
+
+/* ---------- payment ---------- */
+async function handlePayment(){
+  const btn = document.getElementById('pay-btn');
+  if(btn.disabled) return;
+
+  if(currentPrice === 0){
+    const order = {
+      paymentId: 'free_' + crypto.randomUUID(),
+      recipient: state.recipient, sender: state.sender, message: state.message,
+      photos: state.photoFiles, price: currentPrice, coupon: appliedCoupon, ts: Date.now()
+    };
+    saveOrderLocal(order);
+    finalizeSurprise(order);
+    return;
+  }
+
+  btn.disabled = true;
+  document.getElementById('pay-fail').style.display = 'none';
+  try{
+    await ensureRazorpayLoaded();
+  }catch(err){
+    btn.disabled = false;
+    alert(err.message || "Couldn't load the payment gateway. Check your connection and try again.");
+    return;
+  }
+  btn.disabled = false;
+
+  const rzp = new Razorpay({
+    key: RAZORPAY_KEY,
+    amount: currentPrice * 100,
+    currency: 'INR',
+    name: "Friendship Day Surprise",
+    description: `Surprise for ${state.recipient}`,
+    handler: function(response){
+      const order = {
+        paymentId: response.razorpay_payment_id,
+        recipient: state.recipient, sender: state.sender, message: state.message,
+        photos: state.photoFiles, price: currentPrice, coupon: appliedCoupon, ts: Date.now()
+      };
+      saveOrderLocal(order);
+      finalizeSurprise(order);
+    },
+    modal: { ondismiss: function(){ btn.disabled = false; } },
+    theme: { color: '#FF5C8A' }
+  });
+  rzp.on('payment.failed', function(resp){
+    btn.disabled = false;
+    alert("Payment didn't go through: " + (resp.error && resp.error.description ? resp.error.description : 'please try again.'));
+  });
+  rzp.open();
+}
+
+/* ---------- finalize: upload photos, save row, build link — resumable & retried ---------- */
+let finalizeInFlight = false;
+
+async function finalizeSurprise(order){
+  if(finalizeInFlight) return;
+  finalizeInFlight = true;
+
+  document.getElementById('pay-btn').disabled = true;
+  document.getElementById('pay-fail').style.display = 'none';
+  document.getElementById('pay-loading').style.display = 'flex';
+  setLoadingText('Checking your order…');
+
+  try{
+    const existing = await withRetry(
+      ()=> sb.from('friendship_day').select('*').eq('payment_id', order.paymentId).limit(1),
+      { attempts: 2, baseDelay: 700 }
+    );
+    let row = existing.data && existing.data[0];
+
+    let urls;
+    if(row){
+      urls = [row.photo1, row.photo2, row.photo3];
+    } else {
+      urls = [];
+      for(let i=0;i<PHOTO_COUNT;i++){
+        if(!order.photos[i]){
+          urls.push('');
+          continue;
+        }
+        setLoadingText(`Uploading photo ${i+1} of ${PHOTO_COUNT}…`);
+        const blob = dataUrlToBlob(order.photos[i]);
+        const path = `${crypto.randomUUID()}.jpg`;
+        await withRetry(async ()=>{
+          const { error: upErr } = await sb.storage.from('photos').upload(path, blob, { contentType: 'image/jpeg' });
+          if(upErr) throw upErr;
+        }, { attempts: 4, baseDelay: 1000, onAttempt: (n,total)=> n>1 && setLoadingText(`Uploading photo ${i+1} of ${PHOTO_COUNT} (retry ${n}/${total})…`) });
+        const { data: pub } = sb.storage.from('photos').getPublicUrl(path);
+        urls.push(pub.publicUrl);
+      }
+
+      setLoadingText('Saving your surprise…');
+      row = await withRetry(async ()=>{
+        const { data, error: dbErr } = await sb.from('friendship_day').insert({
+          recipient: order.recipient,
+          sender: order.sender,
+          message: order.message,
+          photo1: urls[0],
+          photo2: urls[1],
+          photo3: urls[2],
+          price: order.price,
+          coupon: order.coupon,
+          payment_id: order.paymentId,
+          paid: true
+        }).select().single();
+        if(dbErr) throw dbErr;
+        return data;
+      }, { attempts: 4, baseDelay: 1000, onAttempt: (n,total)=> n>1 && setLoadingText(`Saving your surprise (retry ${n}/${total})…`) });
+    }
+
+    const link = `${location.origin}${location.pathname}?id=${row.id}`;
+    document.getElementById('out-link').value = link;
+
+    document.getElementById('notif-sender-name').textContent = order.sender;
+    document.getElementById('env-title').textContent = 'Happy Friendship Day';
+    document.getElementById('env-seal').textContent = (order.sender[0] || 'F').toUpperCase();
+    document.getElementById('env-photo').src = urls[0] || '';
+    document.getElementById('letter-name').textContent = order.recipient;
+    document.getElementById('letter-sender').textContent = order.sender;
+    state.message = order.message;
+    state.photos = urls;
+    populateBoard(state.photos);
+
+    clearOrderLocal();
+    document.getElementById('resume-banner').style.display = 'none';
+    goTo('step-linkout');
+  }catch(err){
+    console.error(err);
+    document.getElementById('pay-fail').style.display = 'block';
+  }finally{
+    finalizeInFlight = false;
+    document.getElementById('pay-btn').disabled = false;
+    document.getElementById('pay-loading').style.display = 'none';
+  }
+}
+
+function retryFinalize(){
+  const order = loadOrderLocal();
+  if(!order){
+    document.getElementById('pay-fail').style.display = 'none';
+    return;
+  }
+  finalizeSurprise(order);
+}
+
+function resumePendingOrder(){
+  const order = loadOrderLocal();
+  if(!order) return;
+  state.recipient = order.recipient; state.sender = order.sender; state.message = order.message;
+  goTo('step-payment');
+  currentPrice = order.price; appliedCoupon = order.coupon;
+  document.getElementById('pay-price').textContent = '₹' + currentPrice;
+  updatePayBtnLabel();
+  finalizeSurprise(order);
+}
+function discardPendingOrder(){
+  if(!confirm('Discard this paid order? This cannot be undone.')) return;
+  clearOrderLocal();
+  document.getElementById('resume-banner').style.display = 'none';
+}
+
+function copyLink(){
+  const inp = document.getElementById('out-link');
+  inp.select();
+  navigator.clipboard.writeText(inp.value).then(()=>{
+    const msg = document.getElementById('copy-msg');
+    msg.style.display = 'block';
+    setTimeout(()=> msg.style.display='none', 1800);
+  });
+}
+
+/* ---------- notification tap ---------- */
+function openNotification(){
+  goTo('step-envelope');
+}
+
+/* ---------- envelope ---------- */
+function openEnvelope(){
+  document.getElementById('env-flap').style.transform = 'scaleY(0)';
+  document.getElementById('env-hint').textContent = 'opening...';
+  setTimeout(()=> goTo('step-scrapbook'), 550);
+}
+
+/* ---------- scrapbook: fills the 3 TV screens with the user's uploads ---------- */
+function populateBoard(photos){
+  for(let i=0;i<PHOTO_COUNT;i++){
+    const img = document.getElementById(`board-photo-${i}`);
+    if(img) img.src = photos[i] || '';
+  }
+}
+
+/* ---------- letter typewriter ---------- */
+let letterTypeTimer = null;
+function typewriterLetter(text){
+  const textEl = document.getElementById('letter-body-text');
+  const cursorEl = document.getElementById('letter-cursor');
+  const bodyEl = document.getElementById('letter-body');
+  if(!textEl) return;
+  if(letterTypeTimer){ clearInterval(letterTypeTimer); letterTypeTimer = null; }
+  textEl.textContent = '';
+  cursorEl.style.display = 'inline-block';
+  const chars = Array.from(text || '');
+  let i = 0;
+  letterTypeTimer = setInterval(()=>{
+    textEl.textContent += chars[i] || '';
+    i++;
+    bodyEl.scrollTop = bodyEl.scrollHeight;
+    if(i >= chars.length){
+      clearInterval(letterTypeTimer);
+      letterTypeTimer = null;
+      cursorEl.style.display = 'none';
+    }
+  }, 24);
+}
+
+/* ---------- clock (decorative, real local time) ---------- */
+(function tickClock(){
+  const el = document.getElementById('notif-clock');
+  function upd(){
+    const d = new Date();
+    let h = d.getHours()%12; if(h===0) h=12;
+    const m = String(d.getMinutes()).padStart(2,'0');
+    if(el) el.textContent = `${h}:${m}`;
+  }
+  upd(); setInterval(upd, 15000);
+})();
+
+/* ---------- nav ---------- */
+function goTo(id){
+  ['step-intake','step-payment','step-linkout','step-notifications','step-envelope','step-scrapbook','step-letter','step-bootload'].forEach(s=>{
+    document.getElementById(s).style.display = 'none';
+  });
+  const el = document.getElementById(id);
+  el.style.display = 'flex';
+  el.classList.remove('fade-up'); void el.offsetWidth; el.classList.add('fade-up');
+  if(id === 'step-letter') typewriterLetter(state.message);
+}
+function restartFlow(){
+  document.getElementById('env-flap').style.transform = 'scaleY(1)';
+  document.getElementById('env-hint').textContent = 'tap to open';
+  goTo('step-intake');
+}
+function goBackTo(id){
+  document.getElementById('env-flap').style.transform = 'scaleY(1)';
+  document.getElementById('env-hint').textContent = 'tap to open';
+  goTo(id);
+}
+
+/* ---------- viewer mode: ?id=<row uuid> (new, short) or ?d=<base64 payload> (legacy) ---------- */
+function renderViewer(recipient, sender, message, photos){
+  isViewerMode = true;
+  state.recipient = recipient;
+  state.sender = sender;
+  state.message = message;
+  state.photos = photos;
+
+  document.getElementById('notif-sender-name').textContent = sender;
+  document.getElementById('env-title').textContent = 'Happy Friendship Day';
+  document.getElementById('env-seal').textContent = (sender[0] || 'F').toUpperCase();
+  document.getElementById('env-photo').src = photos[0] || '';
+  document.getElementById('letter-name').textContent = recipient;
+  document.getElementById('letter-sender').textContent = sender;
+  populateBoard(photos);
+
+  document.getElementById('scrapbook-actions').innerHTML = '<button class="btn-ghost btn-sm" onclick="goTo(\'step-letter\')">Next →</button>';
+  document.getElementById('letter-actions').innerHTML = '<button class="btn-ghost btn-sm" onclick="goTo(\'step-scrapbook\')">← Back</button>';
+  document.getElementById('letter-restart').style.display = 'none';
+  document.getElementById('notif-edit-btn').style.display = 'none';
+  goTo('step-notifications');
+}
+
+(async function initViewer(){
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id');
+  const d = params.get('d');
+
+  function bootError(msg){
+    document.getElementById('bootload-spinner').style.display = 'none';
+    document.getElementById('bootload-text').textContent = msg;
+    document.getElementById('bootload-retry').style.display = 'inline-block';
+  }
+
+  if(id){
+    try{
+      const { data, error } = await withRetry(
+        ()=> sb.from('friendship_day').select('*').eq('id', id).eq('paid', true).single(),
+        { attempts: 3, baseDelay: 800 }
+      );
+      if(error || !data) throw error || new Error('not found');
+      document.documentElement.classList.remove('viewer-boot');
+      renderViewer(data.recipient, data.sender, data.message, [data.photo1, data.photo2, data.photo3]);
+    }catch(err){
+      console.error('Could not load surprise', err);
+      bootError("Hmm, this link isn't loading. Check your connection and try again.");
+    }
+    return;
+  }
+
+  if(d){
+    try{
+      const payload = JSON.parse(decodeURIComponent(escape(atob(d))));
+      document.documentElement.classList.remove('viewer-boot');
+      renderViewer(payload.r, payload.s, payload.m, payload.p);
+    }catch(err){
+      console.error('Bad link payload', err);
+      bootError("This link looks broken. Ask for a new one.");
+    }
+    return;
+  }
+
+  if(loadOrderLocal()) document.getElementById('resume-banner').style.display = 'block';
+})();
+</script>
+</body>
+</html>
