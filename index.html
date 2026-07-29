@@ -39,11 +39,10 @@
   body{
     font-family:'Space Grotesk',sans-serif;
     background:
-      radial-gradient(circle at 15% 20%, rgba(255,255,255,.5) 0 2px, transparent 3px),
-      radial-gradient(circle at 70% 60%, rgba(255,255,255,.5) 0 2px, transparent 3px),
-      radial-gradient(circle at 40% 85%, rgba(255,255,255,.5) 0 2px, transparent 3px),
+      radial-gradient(ellipse at 20% 0%, rgba(255,255,255,.55), transparent 55%),
+      radial-gradient(ellipse at 85% 90%, rgba(255,255,255,.35), transparent 50%),
       linear-gradient(160deg,var(--blush-1),var(--blush-2) 55%,var(--blush-3));
-    background-size:60px 60px,60px 60px,60px 60px,cover;
+    background-attachment:fixed;
     min-height:100vh;
     display:flex;align-items:flex-start;justify-content:center;
     padding:28px 14px 80px;
@@ -53,11 +52,11 @@
 
   .frame{
     width:100%;max-width:440px;
-    background:var(--ink);
+    background:var(--maroon);
     border-radius:26px;
     padding:14px;
     position:relative;
-    box-shadow:8px 8px 0 rgba(25,23,34,.35);
+    box-shadow:8px 8px 0 rgba(122,27,50,.35);
   }
   .card{
     position:relative;z-index:1;
@@ -315,7 +314,8 @@
     </section>
 
     <!-- ============ STEP 2 — ENVELOPE ============ -->
-    <section id="step-envelope" style="display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;padding:36px 26px;text-align:center">
+    <section id="step-envelope" style="display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;padding:36px 26px;text-align:center;position:relative">
+      <button id="envelope-edit-btn" class="btn-ghost btn-sm" style="position:absolute;top:14px;left:14px;z-index:5" onclick="goTo('step-intake')">← Edit</button>
       <div class="font-display fade-up" style="font-size:25px;font-weight:800;color:var(--ink);margin-bottom:24px" id="env-title">Happy Friendship Day</div>
 
       <div id="envelope" class="fade-up" onclick="openEnvelope()" style="cursor:pointer;width:220px;position:relative">
@@ -861,62 +861,125 @@ async function downloadCertificate(){
   btn.disabled = true; btn.textContent = 'Preparing…';
   try{
     await Promise.all([
-      document.fonts.load('700 70px "Caveat"'),
+      document.fonts.load('700 44px "Caveat"'),
+      document.fonts.load('600 44px "Caveat"'),
       document.fonts.load('800 34px "Baloo 2"'),
-      document.fonts.load('600 20px "Space Grotesk"')
+      document.fonts.load('700 22px "Baloo 2"'),
+      document.fonts.load('600 20px "Space Grotesk"'),
+      document.fonts.load('500 16px "Space Grotesk"')
     ]);
     await document.fonts.ready;
 
+    const MAROON = '#7A1B32';
+    const INK = '#191722';
     const w = 1400, h = 990;
     const canvas = document.createElement('canvas');
     canvas.width = w; canvas.height = h;
     const ctx = canvas.getContext('2d');
+    const sender = state.sender || 'Party of the First Part';
+    const recipient = state.recipient || 'Party of the Second Part';
 
+    // paper + double border, maroon on the outside like an actual notarized deed
     ctx.fillStyle = '#FFF7E8';
     ctx.fillRect(0,0,w,h);
-    ctx.lineWidth = 14; ctx.strokeStyle = '#191722';
-    ctx.strokeRect(30,30,w-60,h-60);
-    ctx.lineWidth = 4; ctx.strokeStyle = '#FF5C8A';
-    ctx.strokeRect(56,56,w-112,h-112);
+    ctx.lineWidth = 14; ctx.strokeStyle = MAROON;
+    ctx.strokeRect(28,28,w-56,h-56);
+    ctx.lineWidth = 2; ctx.strokeStyle = MAROON;
+    ctx.strokeRect(50,50,w-100,h-100);
 
-    ctx.font = '48px sans-serif';
-    ctx.fillText('🎀',80,130);
-    ctx.fillText('⭐',w-150,130);
-    ctx.fillText('🌼',80,h-90);
-    ctx.fillText('💫',w-150,h-90);
+    // corner flourishes instead of stickers — reads more "document," less "party invite"
+    ctx.font = '600 15px "Space Grotesk"';
+    ctx.fillStyle = MAROON;
+    ctx.textAlign = 'left';
+    ctx.fillText('§', 70, 90);
+    ctx.textAlign = 'right';
+    ctx.fillText('§', w-70, 90);
+    ctx.textAlign = 'left';
+    ctx.fillText('§', 70, h-70);
+    ctx.textAlign = 'right';
+    ctx.fillText('§', w-70, h-70);
 
     ctx.textAlign = 'center';
-    ctx.fillStyle = '#191722';
-    ctx.font = '800 34px "Baloo 2"';
-    ctx.fillText('CERTIFICATE OF FRIENDSHIP', w/2, 175);
 
-    ctx.font = '600 18px "Space Grotesk"';
-    ctx.fillStyle = '#6b6478';
-    ctx.fillText('this is to certify, officially and unquestionably, that', w/2, 220);
+    ctx.font = '600 13px "Space Grotesk"';
+    ctx.fillStyle = '#8a8496';
+    ctx.fillText('EXHIBIT A', w/2, 108);
 
-    ctx.font = '700 66px "Caveat"';
-    ctx.fillStyle = '#FF5C8A';
-    ctx.fillText(`${state.sender || 'Someone'}  &  ${state.recipient || 'Someone'}`, w/2, 320);
+    ctx.font = '800 38px "Baloo 2"';
+    ctx.fillStyle = INK;
+    ctx.fillText('CERTIFICATE OF ETERNAL FRIENDSHIP', w/2, 155);
 
-    ctx.font = '500 19px "Space Grotesk"';
+    ctx.font = '500 15px "Space Grotesk"';
+    ctx.fillStyle = MAROON;
+    ctx.fillText('A Legally Unenforceable Instrument, Binding Only In Spirit', w/2, 182);
+
+    ctx.strokeStyle = MAROON; ctx.lineWidth = 1.5;
+    ctx.beginPath(); ctx.moveTo(w/2-90,198); ctx.lineTo(w/2+90,198); ctx.stroke();
+
+    ctx.font = '600 17px "Space Grotesk"';
     ctx.fillStyle = '#3a344a';
-    wrapCanvasText(ctx, 'are hereby declared certified best friends, bound by shared chaos, inside jokes, and unconditional loyalty.', w/2, 380, w-320, 28);
+    ctx.fillText('Let it be known, before this document and whoever is CC\'d on the group chat, that', w/2, 240);
 
+    ctx.font = '700 58px "Caveat"';
+    ctx.fillStyle = MAROON;
+    ctx.fillText(`${sender}  &  ${recipient}`, w/2, 305);
+
+    ctx.font = '500 18px "Space Grotesk"';
+    ctx.fillStyle = '#3a344a';
+    wrapCanvasText(ctx, 'are hereby recognized as Certified Best Friends, a bond entered into freely, irrevocably, and without adult supervision.', w/2, 345, w-360, 26);
+
+    // "Articles" — the funny bit, dressed up as real contract clauses
+    const articles = [
+      ['Article I — Term', 'Effective immediately and continuing in perpetuity. No renewal fee, no early-termination clause exists, and none will be drafted.'],
+      ['Article II — Obligations', 'Each party shall reply to memes within 24 hours, tolerate the other\u2019s cooking, and never let the other walk into a room with spinach in their teeth.'],
+      ['Article III — Governing Law', 'This agreement is governed by whatever the group chat decided at 2 a.m. and is not subject to appeal.'],
+    ];
+    let ay = 420;
+    articles.forEach(([title, body])=>{
+      ctx.textAlign = 'left';
+      ctx.font = '700 16px "Baloo 2"'; ctx.fillStyle = MAROON;
+      ctx.fillText(title, 150, ay);
+      ctx.font = '500 15px "Space Grotesk"'; ctx.fillStyle = '#3a344a';
+      const lines = wrapCanvasText(ctx, body, 150, ay+22, w-300, 21);
+      ctx.textAlign = 'center';
+      ay += 44 + Math.max(0, lines-1)*21;
+    });
+
+    // seal
     ctx.beginPath();
-    ctx.arc(w/2, h-235, 68, 0, Math.PI*2);
+    ctx.arc(w-190, h-165, 66, 0, Math.PI*2);
     ctx.fillStyle = '#FFE07D';
     ctx.fill();
-    ctx.lineWidth = 4; ctx.strokeStyle = '#191722'; ctx.stroke();
-    ctx.font = '800 15px "Baloo 2"'; ctx.fillStyle = '#191722';
-    ctx.fillText('OFFICIAL', w/2, h-240);
-    ctx.fillText('BESTIE', w/2, h-218);
+    ctx.lineWidth = 4; ctx.strokeStyle = MAROON; ctx.stroke();
+    ctx.font = '800 13px "Baloo 2"'; ctx.fillStyle = INK;
+    ctx.fillText('NOTARIZED', w-190, h-172);
+    ctx.fillText('BY VIBES', w-190, h-152);
+
+    // signature lines — real document energy
+    ctx.textAlign = 'left';
+    ctx.strokeStyle = '#3a344a'; ctx.lineWidth = 1.2;
+    ctx.beginPath(); ctx.moveTo(140, h-170); ctx.lineTo(430, h-170); ctx.stroke();
+    ctx.font = '600 34px "Caveat"'; ctx.fillStyle = MAROON;
+    ctx.fillText(sender, 150, h-182);
+    ctx.font = '500 13px "Space Grotesk"'; ctx.fillStyle = '#8a8496';
+    ctx.fillText('Signature, Party of the First Part', 140, h-150);
+
+    ctx.beginPath(); ctx.moveTo(490, h-170); ctx.lineTo(780, h-170); ctx.stroke();
+    ctx.font = '600 34px "Caveat"'; ctx.fillStyle = MAROON;
+    ctx.fillText(recipient, 500, h-182);
+    ctx.font = '500 13px "Space Grotesk"'; ctx.fillStyle = '#8a8496';
+    ctx.fillText('Signature, Party of the Second Part', 490, h-150);
 
     const dateStr = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
-    ctx.textAlign = 'left';
-    ctx.font = '500 16px "Space Grotesk"'; ctx.fillStyle = '#6b6478';
-    ctx.fillText('Date: ' + dateStr, 100, h-100);
+    ctx.font = '500 14px "Space Grotesk"'; ctx.fillStyle = '#8a8496';
+    ctx.fillText('Executed on ' + dateStr, 140, h-100);
     ctx.textAlign = 'right';
-    ctx.fillText('Term: Lifetime · No cancellations', w-100, h-100);
+    ctx.fillText('Witnessed by: Everyone Who Had To Hear About It', w-70, h-100);
+
+    // fine print, like every real contract
+    ctx.textAlign = 'center';
+    ctx.font = '400 10.5px "Space Grotesk"'; ctx.fillStyle = '#a49cb5';
+    ctx.fillText('Terms and conditions apply. None of them are enforceable in any court. This document is 100% legally void and 100% emotionally binding.', w/2, h-70);
 
     const dataUrl = canvas.toDataURL('image/png');
     const { jsPDF } = window.jspdf;
@@ -986,6 +1049,7 @@ function renderViewer(recipient, sender, message, photos){
   document.getElementById('visionboard-actions').innerHTML = '';
   document.getElementById('visionboard-restart').style.display = 'none';
   document.getElementById('notif-edit-btn').style.display = 'none';
+  document.getElementById('envelope-edit-btn').style.display = 'none';
   goTo('step-notifications');
 }
 
