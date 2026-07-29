@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Caveat:wght@500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
   // shared-link viewers never see the intake form flash on screen
   (function(){
@@ -28,6 +29,11 @@
     --accent:#FF5C8A;
     --ink:#191722;
     --sticker:#7FCBEA;
+    --blush-1:#FBE0E6;
+    --blush-2:#F6C7D1;
+    --blush-3:#EDA9BB;
+    --maroon:#7A1B32;
+    --maroon-shadow:rgba(122,27,50,.28);
   }
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   body{
@@ -36,7 +42,7 @@
       radial-gradient(circle at 15% 20%, rgba(255,255,255,.5) 0 2px, transparent 3px),
       radial-gradient(circle at 70% 60%, rgba(255,255,255,.5) 0 2px, transparent 3px),
       radial-gradient(circle at 40% 85%, rgba(255,255,255,.5) 0 2px, transparent 3px),
-      linear-gradient(160deg,var(--mint),var(--lav) 55%,var(--bubblegum));
+      linear-gradient(160deg,var(--blush-1),var(--blush-2) 55%,var(--blush-3));
     background-size:60px 60px,60px 60px,60px 60px,cover;
     min-height:100vh;
     display:flex;align-items:flex-start;justify-content:center;
@@ -65,14 +71,9 @@
 
   .sticker{position:absolute;z-index:3;filter:drop-shadow(1px 2px 1px rgba(0,0,0,.2))}
 
-  .dots{display:flex;gap:6px;justify-content:center;margin:14px 0 2px}
-  .dot{width:7px;height:7px;border-radius:50%;background:var(--ink);opacity:.2}
-  .dot.active{opacity:1;background:var(--accent);width:18px;border-radius:5px;transition:width .25s}
-
   @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
   @keyframes spin{to{transform:rotate(360deg)}}
   @keyframes pop{0%,100%{transform:scale(1)}50%{transform:scale(1.035)}}
-  @keyframes wiggle{0%,100%{transform:rotate(-1.2deg)}50%{transform:rotate(1.2deg)}}
   .fade-up{animation:fadeUp .45s ease both}
   .spinner{width:26px;height:26px;border-radius:50%;border:4px solid var(--lav);border-top-color:var(--accent);animation:spin .8s linear infinite}
 
@@ -84,7 +85,7 @@
     transition:transform .1s,box-shadow .1s,opacity .15s;
   }
   .btn:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
-  .btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:4px 4px 0 var(--ink)}
+  .btn:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:4px 4px 0 var(--ink)}
   .btn-ghost{
     padding:12px 26px;border-radius:999px;font-size:13px;font-weight:700;
     letter-spacing:.4px;cursor:pointer;font-family:'Space Grotesk',sans-serif;
@@ -93,6 +94,7 @@
     transition:transform .1s,box-shadow .1s;
   }
   .btn-ghost:active{transform:translate(3px,3px);box-shadow:1px 1px 0 var(--ink)}
+  .btn-ghost:disabled{opacity:.4;cursor:not-allowed;transform:none}
   .btn-sm{padding:9px 16px;font-size:11.5px}
 
   .inp{
@@ -112,19 +114,13 @@
 
   ::-webkit-scrollbar{width:0}
 
-  .write-cursor{
-    display:inline-block;width:2px;height:12px;background:var(--accent);
-    margin-left:2px;vertical-align:-1px;animation:blinkCursor .9s steps(1) infinite;
-  }
-  @keyframes blinkCursor{50%{opacity:0}}
-
   html.viewer-boot #step-intake{display:none !important}
   html.viewer-boot #step-bootload{display:flex !important}
 
   /* ---------- notifications (phone lock-screen intro) ---------- */
   .phone-bg{
     flex:1;display:flex;flex-direction:column;align-items:center;
-    background:linear-gradient(180deg,var(--lav),var(--bubblegum));
+    background:linear-gradient(180deg,var(--blush-2),var(--blush-3));
     padding:26px 18px 30px;
   }
   .phone-time{color:#fff;text-align:center;margin-bottom:22px;text-shadow:0 2px 0 rgba(0,0,0,.15)}
@@ -149,26 +145,37 @@
   /* ---------- envelope ---------- */
   .env-wrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:36px 26px;text-align:center;position:relative}
 
-  /* ---------- scrapbook / retro-tv page ---------- */
-  .tv-stage{position:relative;flex:1;padding:24px 18px 20px;overflow:hidden}
-  .tv{
-    position:absolute;width:78%;left:11%;
-    border:3px solid var(--ink);border-radius:14px;background:#2b2833;
-    box-shadow:5px 5px 0 rgba(25,23,34,.35);
-    display:flex;padding:10px;gap:8px;
-  }
-  .tv-screen{
-    flex:1;border-radius:8px;border:2px solid var(--ink);overflow:hidden;background:#dfe;
-    aspect-ratio:4/3;
-  }
-  .tv-screen img{width:100%;height:100%;object-fit:cover}
-  .tv-panel{width:26px;display:flex;flex-direction:column;align-items:center;justify-content:space-around;padding:4px 0}
-  .tv-knob{width:14px;height:14px;border-radius:50%;background:var(--butter);border:2px solid var(--ink)}
-  .tv-dot{width:6px;height:6px;border-radius:50%;background:#665f75}
+  /* ---------- friendship agreement ---------- */
+  .agree-card{background:#fff;border:3px solid var(--ink);border-radius:16px;padding:18px 18px 20px;box-shadow:5px 5px 0 rgba(25,23,34,.22)}
+  .agree-item{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:2px dashed #e4d9c2;font-size:12px;color:#3a344a;line-height:1.4}
+  .agree-item:last-child{border-bottom:none}
+  .agree-check{width:20px;height:20px;border:3px solid var(--ink);border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#fff;margin-top:1px;font-size:13px;font-weight:800}
+  .agree-check.locked{background:#e9e4d8;color:#9b9484}
+  .agree-check.final{background:#fff;cursor:pointer}
+  .agree-check.final.checked{background:var(--mint);color:var(--ink)}
+  .agree-final-row{cursor:pointer}
+  .agree-terms{display:flex;justify-content:space-between;font-size:10.5px;color:#8a8496;margin-top:12px;padding-top:10px;border-top:2px solid var(--ink)}
 
-  /* ---------- letter + bouquet ---------- */
-  .letter-photo-col{width:38%;position:relative;overflow:hidden;border-right:3px solid var(--ink)}
-  .letter-text-col{width:62%;padding:24px 18px 18px;display:flex;flex-direction:column;position:relative}
+  /* ---------- vision board (final page) ---------- */
+  .board-masonry{column-count:2;column-gap:12px;padding:4px 2px 2px}
+  .board-item{break-inside:avoid;margin-bottom:14px}
+  .board-item.full-span{column-span:all}
+  .board-photo{background:#fff;border:3px solid var(--maroon);padding:7px 7px 20px;border-radius:6px;box-shadow:4px 4px 0 var(--maroon-shadow);position:relative}
+  .board-photo img{width:100%;object-fit:cover;border-radius:2px;display:block;background:#eee}
+  .board-photo.focus img{aspect-ratio:4/5}
+  .board-photo.side{width:82%;margin:0 auto}
+  .board-photo.side img{aspect-ratio:1/1}
+  .board-caption{position:absolute;left:50%;bottom:4px;transform:translateX(-50%);font-family:'Caveat',cursive;font-size:13px;font-weight:600;color:var(--accent);white-space:nowrap}
+  .board-note{background:#fff;border:3px solid var(--maroon);border-radius:10px;padding:12px 11px;box-shadow:4px 4px 0 var(--maroon-shadow);font-size:10px;color:#3a344a;line-height:1.55;text-align:left}
+  .board-note h4{font-family:'Caveat',cursive;font-size:16px;color:var(--accent);margin-bottom:6px;font-weight:600;text-align:center}
+  .board-note ul{list-style:none;text-align:left}
+  .board-note li{margin-bottom:4px;padding-left:13px;position:relative}
+  .board-note li::before{content:'♥';position:absolute;left:0;top:1px;font-size:8px;color:var(--accent)}
+  .board-tape{position:absolute;width:40px;height:14px;background:rgba(255,224,125,.9);border:2px solid var(--maroon);top:-8px;left:50%;transform:translateX(-50%) rotate(-3deg);border-radius:2px;z-index:2}
+  .board-clip{position:absolute;top:-12px;right:12px;font-size:19px;transform:rotate(14deg);z-index:2}
+  .board-quote{font-family:'Baloo 2',sans-serif;font-weight:600;font-size:12.5px;color:var(--maroon);padding:14px 16px;background:var(--butter);border:3px solid var(--maroon);border-radius:12px;line-height:1.55}
+  .board-ribbon{background:var(--accent);color:#fff;border:3px solid var(--maroon);border-radius:10px;padding:11px 10px;font-size:11px;text-align:center;line-height:1.6}
+  .board-ribbon .font-script{font-size:16px;display:block;margin-top:2px}
 </style>
 </head>
 <body>
@@ -200,7 +207,7 @@
         <input id="in-sender" class="inp" placeholder="Your name" />
 
         <div>
-          <div style="font-size:11px;color:var(--ink);font-weight:700;letter-spacing:.4px;text-transform:uppercase;margin-bottom:8px">Three photos, for the scrapbook</div>
+          <div style="font-size:11px;color:var(--ink);font-weight:700;letter-spacing:.4px;text-transform:uppercase;margin-bottom:8px">Three photos, for the vision board</div>
           <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:9px">
             <div class="photo-slot" data-slot="0" onclick="pickPhoto(0)"><span style="font-size:10px;color:#a49cb5;text-align:center;padding:0 6px">photo 1</span></div>
             <div class="photo-slot" data-slot="1" onclick="pickPhoto(1)"><span style="font-size:10px;color:#a49cb5;text-align:center;padding:0 6px">photo 2</span></div>
@@ -209,13 +216,10 @@
           <input type="file" id="file-input" accept="image/*" style="display:none" />
         </div>
 
-        <textarea id="in-message" class="inp" rows="7" style="resize:none">Some friendships just get it — no explaining, no performing, just showing up. Ours is one of those.
-
-Thank you for the laughs that made bad days good and the good days unforgettable. Thank you for the 2am rambles, the inside jokes nobody else understands, and for never once making me feel like too much.
-
-Whatever life throws at us, I know you'll be somewhere nearby, probably making fun of me for something — and honestly, I wouldn't want it any other way.
-
-Happy Friendship Day. Here's to more chaos, more memories, and forever having your back. 🎀</textarea>
+        <div>
+          <div style="font-size:11px;color:var(--ink);font-weight:700;letter-spacing:.4px;text-transform:uppercase;margin-bottom:8px">A short note (shows on the vision board)</div>
+          <textarea id="in-message" class="inp" rows="3" style="resize:none">You're the friend I never have to explain myself to. Happy Friendship Day — here's to more chaos together. 🎀</textarea>
+        </div>
       </div>
 
       <div id="intake-err" style="display:none;color:#c62828;font-size:12px;margin-top:10px">Add both names and a message first.</div>
@@ -240,7 +244,7 @@ Happy Friendship Day. Here's to more chaos, more memories, and forever having yo
       <div id="coupon-err" style="display:none;color:#c62828;font-size:12px;margin-bottom:8px">Invalid coupon code.</div>
 
       <button id="pay-btn" class="btn" style="margin-top:16px;width:100%" onclick="handlePayment()">Pay &amp; Get Link</button>
-      <button class="btn-ghost" style="margin-top:10px;width:100%" onclick="goTo('step-letter')">← Back</button>
+      <button class="btn-ghost" style="margin-top:10px;width:100%" onclick="goTo('step-visionboard')">← Back</button>
 
       <div id="pay-loading" style="display:none;align-items:center;justify-content:center;gap:10px;margin-top:18px">
         <div class="spinner"></div>
@@ -329,54 +333,125 @@ Happy Friendship Day. Here's to more chaos, more memories, and forever having yo
       <div style="font-size:10px;letter-spacing:2px;color:#a49cb5;text-transform:uppercase;margin-top:28px">designs by joy</div>
     </section>
 
-    <!-- ============ STEP 3 — SCRAPBOOK (retro TVs) ============ -->
-    <section id="step-scrapbook" style="display:none;flex:1;flex-direction:column">
-      <div class="tv-stage">
-        <div class="sticker" style="top:6px;left:8px;font-size:26px;transform:rotate(-12deg)">⭐</div>
-        <div class="sticker" style="top:10px;right:14px;font-size:24px">🌼</div>
-        <div class="sticker" style="bottom:60px;left:6px;font-size:24px;transform:rotate(8deg)">💌</div>
-        <div class="sticker" style="bottom:14px;right:10px;font-size:26px;transform:rotate(-6deg)">📼</div>
-        <div class="sticker" style="top:44%;right:0px;font-size:24px">💿</div>
+    <!-- ============ STEP 3 — FRIENDSHIP AGREEMENT ============ -->
+    <section id="step-agreement" style="display:none;flex:1;flex-direction:column;padding:28px 22px 22px">
+      <div class="font-display" style="font-size:19px;font-weight:800;color:var(--ink);text-align:center;margin-bottom:2px">Friendship Certification Form</div>
+      <div class="font-script" style="font-size:14px;color:var(--accent);text-align:center;margin-bottom:16px">read carefully. no skipping.</div>
 
-        <div class="tv fade-up" style="top:4%;transform:rotate(-4deg)">
-          <div class="tv-screen"><img id="board-photo-0" src="" /></div>
-          <div class="tv-panel"><div class="tv-knob"></div><div class="tv-dot"></div><div class="tv-dot"></div></div>
+      <div class="agree-card">
+        <div style="font-size:11px;color:#8a8496;margin-bottom:10px">By continuing, <b id="agree-recipient-name">they</b> confirm the following is true:</div>
+
+        <div class="agree-item"><div class="agree-check locked">✓</div><div>Shows up without being asked twice</div></div>
+        <div class="agree-item"><div class="agree-check locked">✓</div><div>Laughs at the same dumb joke, every single time</div></div>
+        <div class="agree-item"><div class="agree-check locked">✓</div><div>Replies to voice notes with more voice notes</div></div>
+        <div class="agree-item"><div class="agree-check locked">✓</div><div>Keeps the secrets that actually matter</div></div>
+        <div class="agree-item agree-final-row" onclick="toggleAgree()">
+          <div class="agree-check final" id="agree-final-check"></div>
+          <div><b>Officially agrees to stay best friends — no takebacks, no expiry</b></div>
         </div>
-        <div class="tv fade-up" style="top:36%;transform:rotate(3deg)">
-          <div class="tv-screen"><img id="board-photo-1" src="" /></div>
-          <div class="tv-panel"><div class="tv-knob"></div><div class="tv-dot"></div><div class="tv-dot"></div></div>
-        </div>
-        <div class="tv fade-up" style="top:68%;transform:rotate(-3deg)">
-          <div class="tv-screen"><img id="board-photo-2" src="" /></div>
-          <div class="tv-panel"><div class="tv-knob"></div><div class="tv-dot"></div><div class="tv-dot"></div></div>
+
+        <div class="agree-terms">
+          <span>Term: Forever</span>
+          <span>Notice period: None</span>
         </div>
       </div>
-      <div style="text-align:center;padding:0 22px 6px" class="font-script fade-up" style="font-size:16px;color:var(--ink)">tune into our favorite memories</div>
-      <div style="display:flex;justify-content:space-between;padding:10px 22px 20px" id="scrapbook-actions">
-        <button class="btn-ghost btn-sm" onclick="goBackTo('step-envelope')">← Back</button>
-        <button class="btn btn-sm" onclick="goTo('step-letter')">Next</button>
+
+      <div id="agree-actions" style="display:flex;flex-direction:column;gap:10px;margin-top:18px">
+        <button id="agree-cert-btn" class="btn" style="width:100%" disabled onclick="downloadCertificate()">🎓 Download Certificate</button>
+        <div style="display:flex;justify-content:space-between">
+          <button class="btn-ghost btn-sm" onclick="goBackTo('step-envelope')">← Back</button>
+          <button id="agree-next-btn" class="btn-ghost btn-sm" disabled onclick="goTo('step-visionboard')">Continue →</button>
+        </div>
       </div>
     </section>
 
-    <!-- ============ STEP 4 — LETTER + BOUQUET ============ -->
-    <section id="step-letter" style="display:none;flex:1;flex-direction:column">
-      <div style="display:flex;flex:1;min-height:0">
-        <div class="letter-photo-col">
-          <img id="letter-photo" src="photo.jpeg" style="width:100%;height:100%;object-fit:cover" />
-        </div>
-        <div class="letter-text-col">
-          <div style="position:absolute;top:12px;right:14px;font-size:16px">🎀</div>
-          <div class="font-display" style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:6px">Dear <span id="letter-name"></span>,</div>
-          <div style="width:32px;height:3px;background:var(--accent);border-radius:2px;margin-bottom:12px"></div>
-          <div id="letter-body" style="font-size:12px;line-height:21px;color:#3a344a;flex:1;overflow-y:auto;white-space:pre-wrap;border-left:3px dashed var(--lav);padding-left:10px"><span id="letter-body-text"></span><span id="letter-cursor" class="write-cursor"></span></div>
-          <div class="font-script" style="font-size:14px;color:var(--accent);margin-top:12px;text-align:right">— <span id="letter-sender"></span></div>
-          <div style="display:flex;justify-content:space-between;margin-top:12px" id="letter-actions">
-            <button class="btn-ghost btn-sm" onclick="goTo('step-scrapbook')">← Back</button>
-            <button class="btn btn-sm" onclick="goToPayment()">Generate Link →</button>
+    <!-- ============ STEP 4 — VISION BOARD (final) ============ -->
+    <section id="step-visionboard" style="display:none;flex:1;flex-direction:column;padding:26px 20px 22px;text-align:center;overflow-y:auto">
+      <div class="font-script fade-up" style="font-size:21px;color:var(--ink);margin-bottom:3px">every little moment, together</div>
+      <div class="fade-up" style="font-size:10px;letter-spacing:1px;color:#8a8496;text-transform:uppercase;margin-bottom:14px">pinned, just for us</div>
+
+      <div class="board-masonry">
+        <div class="board-item fade-up">
+          <div class="board-photo focus" style="transform:rotate(-4deg)">
+            <div class="board-tape"></div>
+            <img id="board-photo-0" src="" />
+            <div class="board-caption">My Favorite Person</div>
           </div>
-          <button class="btn-ghost btn-sm" style="margin-top:8px;width:100%" onclick="restartFlow()" id="letter-restart">Start Over</button>
+        </div>
+
+        <div class="board-item fade-up" style="transform:rotate(2deg)">
+          <div class="board-note">
+            <h4>Reasons We Work</h4>
+            <ul>
+              <li>Zero effort required to talk</li>
+              <li>Chaos, but the good kind</li>
+              <li>You get all my jokes</li>
+              <li>Always in my corner</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="board-item fade-up">
+          <div class="board-photo side" style="transform:rotate(3deg)">
+            <span class="board-clip">📎</span>
+            <img src="photo.jpeg" />
+            <div class="board-caption">The Duo</div>
+          </div>
+        </div>
+
+        <div class="board-item fade-up">
+          <div class="board-photo focus" style="transform:rotate(3deg)">
+            <span class="board-clip">📎</span>
+            <img id="board-photo-1" src="" />
+            <div class="board-caption">Partner in Crime</div>
+          </div>
+        </div>
+
+        <div class="board-item full-span fade-up" style="padding:0 2px">
+          <div class="board-quote" id="board-quote-text"></div>
+        </div>
+
+        <div class="board-item fade-up">
+          <div class="board-photo focus" style="transform:rotate(-3deg)">
+            <div class="board-tape"></div>
+            <img id="board-photo-2" src="" />
+            <div class="board-caption">You + Me</div>
+          </div>
+        </div>
+
+        <div class="board-item fade-up" style="transform:rotate(-2deg)">
+          <div class="board-note">
+            <h4>With You</h4>
+            <ul>
+              <li>I laugh a little louder</li>
+              <li>I overthink a little less</li>
+              <li>Every plan gets better</li>
+              <li>Home, basically</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="board-item fade-up">
+          <div class="board-photo side" style="transform:rotate(-2deg)">
+            <span class="board-clip" style="right:auto;left:12px;transform:rotate(-14deg)">📎</span>
+            <img src="photo1.jpeg" />
+            <div class="board-caption">For the Memories</div>
+          </div>
+        </div>
+
+        <div class="board-item full-span fade-up">
+          <div class="board-ribbon">
+            made for the friend who gets it
+            <span class="font-script">Happy Friendship Day 🎀</span>
+          </div>
         </div>
       </div>
+
+      <div style="display:flex;justify-content:space-between;margin-top:22px" id="visionboard-actions">
+        <button class="btn-ghost" onclick="goTo('step-agreement')">← Back</button>
+        <button class="btn" onclick="goToPayment()">Generate Link →</button>
+      </div>
+      <button class="btn-ghost" style="margin-top:10px;width:100%" onclick="restartFlow()" id="visionboard-restart">Start Over</button>
     </section>
 
   </div>
@@ -398,6 +473,7 @@ let activeSlot = null;
 let currentPrice = BASE_PRICE;
 let appliedCoupon = null;
 let isViewerMode = false;
+let agreeChecked = false;
 
 /* ---------- intake ---------- */
 function pickPhoto(idx){ activeSlot = idx; document.getElementById('file-input').click(); }
@@ -460,16 +536,18 @@ function startPreview(){
   }
   document.getElementById('intake-err').style.display='none';
   state.recipient = recipient; state.sender = sender; state.message = message;
-
-  document.getElementById('notif-sender-name').textContent = sender;
-  document.getElementById('env-title').textContent = 'Happy Friendship Day';
-  document.getElementById('env-seal').textContent = (sender[0] || 'F').toUpperCase();
-  document.getElementById('env-photo').src = state.photos[0] || '';
-  document.getElementById('letter-name').textContent = recipient;
-  document.getElementById('letter-sender').textContent = sender;
-  populateBoard(state.photos);
-
+  applyStateToDOM();
   goTo('step-notifications');
+}
+
+function applyStateToDOM(){
+  document.getElementById('notif-sender-name').textContent = state.sender;
+  document.getElementById('env-title').textContent = 'Happy Friendship Day';
+  document.getElementById('env-seal').textContent = (state.sender[0] || 'F').toUpperCase();
+  document.getElementById('env-photo').src = state.photos[0] || '';
+  document.getElementById('agree-recipient-name').textContent = state.recipient || 'they';
+  document.getElementById('board-quote-text').textContent = state.message;
+  populateBoard(state.photos);
 }
 
 function goToPayment(){
@@ -673,15 +751,9 @@ async function finalizeSurprise(order){
     const link = `${location.origin}${location.pathname}?id=${row.id}`;
     document.getElementById('out-link').value = link;
 
-    document.getElementById('notif-sender-name').textContent = order.sender;
-    document.getElementById('env-title').textContent = 'Happy Friendship Day';
-    document.getElementById('env-seal').textContent = (order.sender[0] || 'F').toUpperCase();
-    document.getElementById('env-photo').src = urls[0] || '';
-    document.getElementById('letter-name').textContent = order.recipient;
-    document.getElementById('letter-sender').textContent = order.sender;
-    state.message = order.message;
+    state.recipient = order.recipient; state.sender = order.sender; state.message = order.message;
     state.photos = urls;
-    populateBoard(state.photos);
+    applyStateToDOM();
 
     clearOrderLocal();
     document.getElementById('resume-banner').style.display = 'none';
@@ -740,39 +812,132 @@ function openNotification(){
 function openEnvelope(){
   document.getElementById('env-flap').style.transform = 'scaleY(0)';
   document.getElementById('env-hint').textContent = 'opening...';
-  setTimeout(()=> goTo('step-scrapbook'), 550);
+  setTimeout(()=> goTo('step-agreement'), 550);
 }
 
-/* ---------- scrapbook: fills the 3 TV screens with the user's uploads ---------- */
+/* ---------- friendship agreement: tick the final line to unlock the certificate ---------- */
+function toggleAgree(){
+  agreeChecked = !agreeChecked;
+  const box = document.getElementById('agree-final-check');
+  const certBtn = document.getElementById('agree-cert-btn');
+  const nextBtn = document.getElementById('agree-next-btn');
+  box.classList.toggle('checked', agreeChecked);
+  box.textContent = agreeChecked ? '✓' : '';
+  certBtn.disabled = !agreeChecked;
+  nextBtn.disabled = !agreeChecked;
+}
+function resetAgreement(){
+  agreeChecked = false;
+  const box = document.getElementById('agree-final-check');
+  if(box){ box.classList.remove('checked'); box.textContent = ''; }
+  const certBtn = document.getElementById('agree-cert-btn');
+  const nextBtn = document.getElementById('agree-next-btn');
+  if(certBtn) certBtn.disabled = true;
+  if(nextBtn) nextBtn.disabled = true;
+}
+
+/* ---------- certificate: rendered on a canvas, then dropped into a PDF ---------- */
+function wrapCanvasText(ctx, text, cx, y, maxWidth, lineHeight){
+  const words = text.split(' ');
+  let line = '';
+  const lines = [];
+  for(const word of words){
+    const test = line ? line + ' ' + word : word;
+    if(ctx.measureText(test).width > maxWidth && line){
+      lines.push(line);
+      line = word;
+    } else {
+      line = test;
+    }
+  }
+  if(line) lines.push(line);
+  lines.forEach((l,i)=> ctx.fillText(l, cx, y + i*lineHeight));
+  return lines.length;
+}
+
+async function downloadCertificate(){
+  const btn = document.getElementById('agree-cert-btn');
+  const original = btn.textContent;
+  btn.disabled = true; btn.textContent = 'Preparing…';
+  try{
+    await Promise.all([
+      document.fonts.load('700 70px "Caveat"'),
+      document.fonts.load('800 34px "Baloo 2"'),
+      document.fonts.load('600 20px "Space Grotesk"')
+    ]);
+    await document.fonts.ready;
+
+    const w = 1400, h = 990;
+    const canvas = document.createElement('canvas');
+    canvas.width = w; canvas.height = h;
+    const ctx = canvas.getContext('2d');
+
+    ctx.fillStyle = '#FFF7E8';
+    ctx.fillRect(0,0,w,h);
+    ctx.lineWidth = 14; ctx.strokeStyle = '#191722';
+    ctx.strokeRect(30,30,w-60,h-60);
+    ctx.lineWidth = 4; ctx.strokeStyle = '#FF5C8A';
+    ctx.strokeRect(56,56,w-112,h-112);
+
+    ctx.font = '48px sans-serif';
+    ctx.fillText('🎀',80,130);
+    ctx.fillText('⭐',w-150,130);
+    ctx.fillText('🌼',80,h-90);
+    ctx.fillText('💫',w-150,h-90);
+
+    ctx.textAlign = 'center';
+    ctx.fillStyle = '#191722';
+    ctx.font = '800 34px "Baloo 2"';
+    ctx.fillText('CERTIFICATE OF FRIENDSHIP', w/2, 175);
+
+    ctx.font = '600 18px "Space Grotesk"';
+    ctx.fillStyle = '#6b6478';
+    ctx.fillText('this is to certify, officially and unquestionably, that', w/2, 220);
+
+    ctx.font = '700 66px "Caveat"';
+    ctx.fillStyle = '#FF5C8A';
+    ctx.fillText(`${state.sender || 'Someone'}  &  ${state.recipient || 'Someone'}`, w/2, 320);
+
+    ctx.font = '500 19px "Space Grotesk"';
+    ctx.fillStyle = '#3a344a';
+    wrapCanvasText(ctx, 'are hereby declared certified best friends, bound by shared chaos, inside jokes, and unconditional loyalty.', w/2, 380, w-320, 28);
+
+    ctx.beginPath();
+    ctx.arc(w/2, h-235, 68, 0, Math.PI*2);
+    ctx.fillStyle = '#FFE07D';
+    ctx.fill();
+    ctx.lineWidth = 4; ctx.strokeStyle = '#191722'; ctx.stroke();
+    ctx.font = '800 15px "Baloo 2"'; ctx.fillStyle = '#191722';
+    ctx.fillText('OFFICIAL', w/2, h-240);
+    ctx.fillText('BESTIE', w/2, h-218);
+
+    const dateStr = new Date().toLocaleDateString('en-IN', { day:'numeric', month:'long', year:'numeric' });
+    ctx.textAlign = 'left';
+    ctx.font = '500 16px "Space Grotesk"'; ctx.fillStyle = '#6b6478';
+    ctx.fillText('Date: ' + dateStr, 100, h-100);
+    ctx.textAlign = 'right';
+    ctx.fillText('Term: Lifetime · No cancellations', w-100, h-100);
+
+    const dataUrl = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation:'landscape', unit:'px', format:[w,h] });
+    pdf.addImage(dataUrl, 'PNG', 0, 0, w, h);
+    pdf.save(`friendship-certificate-${(state.recipient || 'certificate').replace(/\s+/g,'-').toLowerCase()}.pdf`);
+  }catch(err){
+    console.error('Certificate generation failed', err);
+    alert("Couldn't generate the certificate — try again.");
+  }finally{
+    btn.disabled = !agreeChecked;
+    btn.textContent = original;
+  }
+}
+
+/* ---------- vision board: fills the 3 focus photo slots with the user's uploads ---------- */
 function populateBoard(photos){
   for(let i=0;i<PHOTO_COUNT;i++){
     const img = document.getElementById(`board-photo-${i}`);
     if(img) img.src = photos[i] || '';
   }
-}
-
-/* ---------- letter typewriter ---------- */
-let letterTypeTimer = null;
-function typewriterLetter(text){
-  const textEl = document.getElementById('letter-body-text');
-  const cursorEl = document.getElementById('letter-cursor');
-  const bodyEl = document.getElementById('letter-body');
-  if(!textEl) return;
-  if(letterTypeTimer){ clearInterval(letterTypeTimer); letterTypeTimer = null; }
-  textEl.textContent = '';
-  cursorEl.style.display = 'inline-block';
-  const chars = Array.from(text || '');
-  let i = 0;
-  letterTypeTimer = setInterval(()=>{
-    textEl.textContent += chars[i] || '';
-    i++;
-    bodyEl.scrollTop = bodyEl.scrollHeight;
-    if(i >= chars.length){
-      clearInterval(letterTypeTimer);
-      letterTypeTimer = null;
-      cursorEl.style.display = 'none';
-    }
-  }, 24);
 }
 
 /* ---------- clock (decorative, real local time) ---------- */
@@ -789,22 +954,23 @@ function typewriterLetter(text){
 
 /* ---------- nav ---------- */
 function goTo(id){
-  ['step-intake','step-payment','step-linkout','step-notifications','step-envelope','step-scrapbook','step-letter','step-bootload'].forEach(s=>{
+  ['step-intake','step-payment','step-linkout','step-notifications','step-envelope','step-agreement','step-visionboard','step-bootload'].forEach(s=>{
     document.getElementById(s).style.display = 'none';
   });
   const el = document.getElementById(id);
   el.style.display = 'flex';
   el.classList.remove('fade-up'); void el.offsetWidth; el.classList.add('fade-up');
-  if(id === 'step-letter') typewriterLetter(state.message);
 }
 function restartFlow(){
   document.getElementById('env-flap').style.transform = 'scaleY(1)';
   document.getElementById('env-hint').textContent = 'tap to open';
+  resetAgreement();
   goTo('step-intake');
 }
 function goBackTo(id){
   document.getElementById('env-flap').style.transform = 'scaleY(1)';
   document.getElementById('env-hint').textContent = 'tap to open';
+  resetAgreement();
   goTo(id);
 }
 
@@ -815,18 +981,10 @@ function renderViewer(recipient, sender, message, photos){
   state.sender = sender;
   state.message = message;
   state.photos = photos;
+  applyStateToDOM();
 
-  document.getElementById('notif-sender-name').textContent = sender;
-  document.getElementById('env-title').textContent = 'Happy Friendship Day';
-  document.getElementById('env-seal').textContent = (sender[0] || 'F').toUpperCase();
-  document.getElementById('env-photo').src = photos[0] || '';
-  document.getElementById('letter-name').textContent = recipient;
-  document.getElementById('letter-sender').textContent = sender;
-  populateBoard(photos);
-
-  document.getElementById('scrapbook-actions').innerHTML = '<button class="btn-ghost btn-sm" onclick="goTo(\'step-letter\')">Next →</button>';
-  document.getElementById('letter-actions').innerHTML = '<button class="btn-ghost btn-sm" onclick="goTo(\'step-scrapbook\')">← Back</button>';
-  document.getElementById('letter-restart').style.display = 'none';
+  document.getElementById('visionboard-actions').innerHTML = '';
+  document.getElementById('visionboard-restart').style.display = 'none';
   document.getElementById('notif-edit-btn').style.display = 'none';
   goTo('step-notifications');
 }
